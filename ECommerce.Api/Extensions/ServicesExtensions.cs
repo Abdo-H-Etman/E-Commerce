@@ -1,4 +1,3 @@
-using System;
 using Asp.Versioning;
 using Ecommerce.Application.Dtos.List;
 using Ecommerce.Application.Interfaces;
@@ -12,6 +11,7 @@ using ECommerce.Domain.Models;
 using ECommerce.Infrastructure.Data;
 using ECommerce.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
+
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 
@@ -81,13 +81,22 @@ public static class ServicesExtensions
         });
     }
 
-    public static void ConfigureVersioning(this IServiceCollection services) =>
+    public static void ConfigureVersioning(this IServiceCollection services)
+    {
         services.AddApiVersioning(opt =>
         {
             opt.ReportApiVersions = true;
             opt.AssumeDefaultVersionWhenUnspecified = true;
-            opt.DefaultApiVersion = new ApiVersion(1, 0);
+            opt.DefaultApiVersion = new ApiVersion(1,0);
+            opt.ApiVersionReader = new UrlSegmentApiVersionReader();
+        })
+        .AddMvc()
+        .AddApiExplorer(opt =>
+        {
+            opt.GroupNameFormat = "'v'VVV";
+            opt.SubstituteApiVersionInUrl = true;
         });
+    }
     public static void ConfigureLinkService(this IServiceCollection services) =>
         services.AddScoped<IEntityLinks<UserDto>, EntityLinks<UserDto>>();
 

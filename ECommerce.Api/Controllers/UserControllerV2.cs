@@ -3,6 +3,7 @@ using System.Text.Json;
 using Asp.Versioning;
 using Ecommerce.Application.Interfaces;
 using Ecommerce.Application.Responses;
+using Ecommerce.Application.Validations;
 using Ecommerce.Domain.RequestFeatures;
 using ECommerce.Domain.Entities.LinkModels;
 using ECommerce.Domain.Entities.Models;
@@ -10,16 +11,17 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.Api.Controllers;
 
-[ApiVersion("2.0")]
+[Asp.Versioning.ApiVersion("2.0")]
 [Route("api/v{version:apiVersion}/users")]
 [ApiController]
-public class UserControllerV2 : ControllerBase
+public class UserV2Controller : ControllerBase
 {
     private readonly IServiceManager _serviceManager;
 
-    public UserControllerV2(IServiceManager serviceManager) => _serviceManager = serviceManager;
+    public UserV2Controller(IServiceManager serviceManager) => _serviceManager = serviceManager;
 
-    [HttpGet(Name = "GetUsers")]
+    [HttpGet]
+    [ServiceFilter(typeof(ValidateMediaTypeAttribute))]
     public async Task<IActionResult> GetAllUsers([FromQuery] UserParameters userParameters)
     {
         var linkParams = new LinkParameters(userParameters, HttpContext);

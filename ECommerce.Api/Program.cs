@@ -1,8 +1,11 @@
+using Asp.Versioning.ApiExplorer;
 using Ecommerce.Application.Interfaces;
 using ECommerce.Api;
 using ECommerce.Api.Extensions;
+using ECommerce.Api.OpenApi;
 using ECommerce.Infrastructure.Utilities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +32,7 @@ builder.Services.ConfigureVersioning();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddRepositories();
 builder.Services.AddCustomMediaTypes();
+builder.Services.ConfigureOptions<ConfigureSwaggerGenOption>();
 
 var app = builder.Build();
 var logger = app.Services.GetRequiredService<ILoggerManager>();
@@ -39,7 +43,16 @@ app.ConfigureExceptionHandler(logger);
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(opt =>
+    {
+        IReadOnlyList<ApiVersionDescription>? descriptions = app.DescribeApiVersions();
+        foreach(ApiVersionDescription description in descriptions)
+        {
+            string url = $"/swagger/{description.GroupName}/swagger.json";
+            string name = description.GroupName.ToUpperInvariant();
+            opt.SwaggerEndpoint(url, name);
+        }
+    });
 }
 
 app.UseCors("CorsPolicy"); 

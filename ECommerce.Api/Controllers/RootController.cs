@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.Api.Controllers;
 
-[ApiVersion("1.0")]
 [Route("api")]
 [ApiController]
 public class RootController : ControllerBase
