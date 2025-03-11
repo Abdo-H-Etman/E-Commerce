@@ -19,12 +19,7 @@ public static class ExceptionMiddleWareExtensions
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 context.Response.ContentType = "application/json";
                 var contextFeature = context.Features.GetRequiredFeature<IExceptionHandlerFeature>();
-                // string responseMessage = contextFeature.Error switch
-                //     {
-                //         NotFoundException => "Not Found",
-                //         BadRequestException => "Bad Request",
-                //         _ => "Internal Server Error"
-                //     };
+                
                 if (contextFeature != null)
                 {
                     context.Response.StatusCode = contextFeature.Error switch
@@ -35,16 +30,7 @@ public static class ExceptionMiddleWareExtensions
                         _ => StatusCodes.Status500InternalServerError
                     };
                     logger.LogError($"Something went wrong {contextFeature.Error}");
-                    // await context.Response.WriteAsync(new BaseResponse<object>(false, new ErrorDetails
-                    // {
-                    //     StatusCode = context.Response.StatusCode,
-                    //     Message = contextFeature.Error.Message
-                    // }.ToString(),null).ToString());
-                    // if(contextFeature.Error is UnprocessableEntityException)
-                    // {
-                    //     await context.Response.WriteAsJsonAsync(new BaseResponse<object>(false, contextFeature.Error.Message));
-                    //     return;
-                    // }
+                    
                     if (contextFeature.Error is UnprocessableEntityException validationException)
                     {
                         await context.Response.WriteAsJsonAsync(new FailedResponse<object>(

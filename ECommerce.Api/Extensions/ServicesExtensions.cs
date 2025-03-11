@@ -1,4 +1,6 @@
+using System.Text;
 using Asp.Versioning;
+using AspNetCoreRateLimit;
 using Ecommerce.Application.Dtos.List;
 using Ecommerce.Application.Interfaces;
 using Ecommerce.Application.Services;
@@ -10,10 +12,14 @@ using ECommerce.Domain.Interfaces;
 using ECommerce.Domain.Models;
 using ECommerce.Infrastructure.Data;
 using ECommerce.Infrastructure.Repositories;
+using Marvin.Cache.Headers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ECommerce.Api.Extensions;
 
@@ -44,7 +50,7 @@ public static class ServicesExtensions
     public static void ConfigureServiceManager(this IServiceCollection services) =>
         services.AddScoped<IServiceManager, ServiceManager>();
     public static IServiceCollection ConfigureDbContextPool(this IServiceCollection services, IConfiguration configuration) =>
-        services.AddDbContext<AppDbContext>(
+        services.AddDbContextPool<AppDbContext>(
             options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
     public static void AddFilters(this IServiceCollection services)
     {
@@ -99,5 +105,81 @@ public static class ServicesExtensions
     }
     public static void ConfigureLinkService(this IServiceCollection services) =>
         services.AddScoped<IEntityLinks<UserDto>, EntityLinks<UserDto>>();
+
+    public static void ConfigureResponseCaching(this IServiceCollection services) =>
+        services.AddResponseCaching();
+
+    public static void ConfigureHttpCacheHeaders(this IServiceCollection services) =>
+        services.AddHttpCacheHeaders(
+            (expirationOpt) =>
+            {
+                expirationOpt.MaxAge = 65;
+                expirationOpt.CacheLocation = CacheLocation.Private;
+            },
+            (validationOpt) =>
+            {
+                validationOpt.MustRevalidate = true;
+            });
+
+    public static void ConfigureRateLimitingOptions(this IServiceCollection services)
+    {
+        var rateLimitRules = new List<RateLimitRule>
+        {
+            new RateLimitRule
+            {
+                Endpoint = "*",
+                Limit = 100,
+                Period = "5m"
+            }
+        };
+        services.Configure<IpRateLimitOptions>(opt =>
+        {
+            opt.GeneralRules = rateLimitRules;
+        });
+        services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
+        services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
+        services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+        services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrategy>();
+    } 
+
+    public static void ConfigureIdentity(this IServiceCollection services)
+    {
+        var builder = services.AddIdentity<User, IdentityRole<Guid>>(o =>
+        {
+            o.Password.RequireDigit = false;
+            o.Password.RequireLowercase = false;
+            o.Password.RequireUppercase = false;
+            o.Password.RequireNonAlphanumeric = false;
+            o.Password.RequiredLength = 10;
+            o.User.RequireUniqueEmail = true;
+        })
+        .AddEntityFrameworkStores<AppDbContext>()
+        .AddDefaultTokenProviders();
+    }
+
+    public static void ConfigureJWT(this IServiceCollection services, IConfiguration configuration)
+    {
+        var jwtSettings = configuration.GetSection("JwtSettings");
+        var secretKey = Environment.GetEnvironmentVariable("SECRET");
+
+        services.AddAuthentication(opt =>
+        {
+            opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = jwtSettings["validIssuer"],
+                ValidAudience = jwtSettings["validAudience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!))
+            };
+        });
+    }
 
 }

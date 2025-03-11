@@ -16,7 +16,7 @@ public class ValidationFilterAttribute : IActionFilter
     {
         var action = context.RouteData.Values["action"];
         var controller = context.RouteData.Values["controller"];
-        var param = context.ActionArguments.SingleOrDefault(x => x.Value != null && x.Value.ToString().Contains("Dto")).Value;
+        var param = context.ActionArguments.SingleOrDefault(x => x.Value != null && x.Value.ToString()!.Contains("Dto")).Value;
 
         if (param == null)
         {
@@ -29,10 +29,10 @@ public class ValidationFilterAttribute : IActionFilter
         if (!context.ModelState.IsValid)
         {
             var errors = context.ModelState
-                .Where(ms => ms.Value.Errors.Count > 0)
+                .Where(ms => ms.Value!.Errors.Count > 0)
                 .ToDictionary(
                     ms => ms.Key,
-                    ms => ms.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+                    ms => ms.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
                 );
 
             throw new UnprocessableEntityException("Validation failed for the request.", errors);

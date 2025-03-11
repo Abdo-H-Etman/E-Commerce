@@ -18,7 +18,7 @@ public interface IUserService
     Task<(LinkResponse linkResponse,MetaData metaData)> GetAllUsers(LinkParameters userLinkParameters,bool trackChanges);
     Task<BaseResponse<UserDto>> GetUser(Guid id, bool trackChanges);
     Task<BaseResponse<IEnumerable<UserDto>>> FilterUsers(Expression<Func<User, bool>> predicate, bool trackChanges);
-    Task<BaseResponse<UserDto>> CreateUser(UserForCreateDto user);
+    // Task<BaseResponse<UserDto>> CreateUser(UserForRegistrationDto user);
     Task<BaseResponse<object>> DeleteUser(Guid userId, bool trackChanges);
     Task<BaseResponse<object>> UpdateUser(Guid userId, UserForUpdateDto userForUpdate, bool trackChanges);
 }

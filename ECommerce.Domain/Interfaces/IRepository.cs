@@ -5,7 +5,7 @@ using ECommerce.Domain.RequestFeatures;
 
 namespace ECommerce.Domain.Interfaces;
 
-public interface IRepository<TModel, TParams> where TModel : IdModel where TParams : RequestParameters
+public interface IRepository<TModel, TParams> where TModel : class where TParams : RequestParameters
 {
     Task<PagedList<TModel>> GetAll(TParams parameters);
     Task<IEnumerable<TModel>> Filter(Expression<Func<TModel,bool>> func);

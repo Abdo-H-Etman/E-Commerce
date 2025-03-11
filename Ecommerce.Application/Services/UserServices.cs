@@ -39,16 +39,16 @@ public class UserServices : IUserService
 
 
 
-    public async Task<BaseResponse<UserDto>> CreateUser(UserForCreateDto? user)
-    {
-        User userEntity = _mapper.Map<User>(user);
+    // public async Task<BaseResponse<UserDto>> CreateUser(UserForCreateDto? user)
+    // {
+    //     User userEntity = _mapper.Map<User>(user);
 
-        await _repositoryManager.User.Add(userEntity);
+    //     await _repositoryManager.User.Add(userEntity);
 
-        await _repositoryManager.Save();
-        UserDto userDto = _mapper.Map<UserDto>(userEntity);
-        return new OkResponse<UserDto>(userDto, "User Created Successfully");
-    }
+    //     await _repositoryManager.Save();
+    //     UserDto userDto = _mapper.Map<UserDto>(userEntity);
+    //     return new OkResponse<UserDto>(userDto, "User Created Successfully");
+    // }
     public async Task<(LinkResponse, MetaData)> GetAllUsers(LinkParameters userLinkParameters, bool trackChanges)
     {
         if (!userLinkParameters.UserParameters.ValidDateRange)

@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.Infrastructure.Repositories;
 
-public class GenericRepository<TModel,TParams> : IRepository<TModel, TParams> where TModel : IdModel where TParams : RequestParameters
+public class GenericRepository<TModel,TParams> : IRepository<TModel, TParams> where TModel : class where TParams : RequestParameters
 {
     protected readonly AppDbContext _context;
     protected DbSet<TModel> _dbSet;
@@ -24,7 +24,6 @@ public class GenericRepository<TModel,TParams> : IRepository<TModel, TParams> wh
         var models = await _dbSet.ToListAsync();
         var count = await _dbSet.CountAsync();
         return new PagedList<TModel>(models, count, requestParameters.PageNumber, requestParameters.PageSize);
-        //PagedList<TModel>.ToPagedList(models, requestParameters.PageNumber, requestParameters.PageSize);
     }
 
     public async virtual Task<IEnumerable<TModel>> Filter(Expression<Func<TModel, bool>> func)=>

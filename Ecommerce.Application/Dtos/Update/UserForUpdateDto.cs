@@ -17,6 +17,4 @@ public record UserForUpdateDto
 
     [PhoneNumber]        
     public string? Phone { get; set; }
-    // public IEnumerable<Order>? Orders{get; set;}
-    // public IEnumerable<Review>? Reviews {get; set;}
 }

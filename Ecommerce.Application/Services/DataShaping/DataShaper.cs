@@ -70,7 +70,9 @@ public class DataShaper<T> : IDataShaper<T> where T : class
         }
 
         var objectProperty = entity.GetType().GetProperty("Id");
-        shapedObject.Id = (Guid)objectProperty.GetValue(entity);
+
+        if (objectProperty != null)
+            shapedObject.Id = (Guid)objectProperty.GetValue(entity)!;
 
         return shapedObject;
     }

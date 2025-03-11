@@ -9,6 +9,8 @@ using Ecommerce.Domain.RequestFeatures;
 using ECommerce.Domain.Entities.Exceptions;
 using ECommerce.Domain.Entities.LinkModels;
 using ECommerce.Domain.Entities.Models;
+using Marvin.Cache.Headers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,6 +19,7 @@ namespace ECommerce.Api.Controllers
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/users")]
     [ApiController]
+    // [ResponseCache(CacheProfileName = "120SecondsDuration")]
     public class UsersController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;
@@ -26,6 +29,7 @@ namespace ECommerce.Api.Controllers
         [HttpGet(Name = "GetUsers")]
         [HttpHead]
         [ServiceFilter(typeof(ValidateMediaTypeAttribute))]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> GetAllUsers([FromQuery] UserParameters userParameters)
         {
             var linkParams = new LinkParameters(userParameters, HttpContext);
@@ -37,6 +41,7 @@ namespace ECommerce.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        // [HttpCacheExpiration(MaxAge = 60)]
         public async Task<IActionResult> GetUser(Guid id)
         {
             var user = await _serviceManager.UserService.GetUser(id, trackChanges: false);
@@ -48,14 +53,6 @@ namespace ECommerce.Api.Controllers
         {
             var users = await _serviceManager.UserService.FilterUsers(u => string.Join(" ", u.FirstName!.ToLower(), (u.LastName ?? string.Empty).ToLower()).Contains(filter.ToLower()), trackChanges: false);
             return StatusCode(200, users);
-        }
-
-        [HttpPost("Register", Name = "CreateUser")]
-        [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> CreateUser([FromBody] UserForCreateDto? user)
-        {
-            var response = await _serviceManager.UserService.CreateUser(user!);
-            return StatusCode(201, response);
         }
 
         [HttpPut("{id}")]

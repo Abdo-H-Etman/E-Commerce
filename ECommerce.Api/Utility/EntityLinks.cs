@@ -4,8 +4,8 @@ using Ecommerce.Application.Interfaces;
 using ECommerce.Domain.Entities.LinkModels;
 using ECommerce.Domain.Entities.Models;
 using ECommerce.Domain.Generics;
-// using System.Net.Http.Headers;
-// using System.Net.Http.Headers;
+
+
 
 namespace ECommerce.Api.Utility;
 
@@ -35,10 +35,7 @@ public class EntityLinks<T> : IEntityLinks<T>
     private bool ShouldGenerateLinks(HttpContext httpContext)
     {
         var mediaType = (System.Net.Http.Headers.MediaTypeHeaderValue)httpContext.Items["AcceptHeaderMediaType"]! ;
-        // if (mediaType == null)
-        // {
-        //     throw new InvalidOperationException("AcceptHeaderMediaType is not present in the HttpContext items.");
-        // }
+        
         return mediaType.MediaType!.EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
     }
     private LinkResponse ReturnShapedEntities(List<Entity> shapedEntities) =>
