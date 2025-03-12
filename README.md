@@ -3,15 +3,15 @@
 ## Description
 This is an E-Commerce application built using C#. The project aims to provide a platform for users to browse and purchase products online.
 
+## Project Structure
+This project is built following 4-Layered Onion Archeticture
+
 ## Features
 - User authentication and authorization
 - Product listing and search
 - Shopping cart functionality
 - Order management
 - Payment processing
-
-## Project Structure
-This project is built following 4-Layered Onion Archeticture
 
 ## Technologies Used
 - C#
