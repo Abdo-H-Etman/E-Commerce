@@ -12,10 +12,10 @@ This layer contains the business models of the system along with the interfaces 
 #### Application Layer
 This layer contains the workflow of the proejct such as interfaces for services, Data transfer objects, Mappers from models to DTOs and vice versa, generic responses for dealing with     errors and finally the services implementation.
 
-### Infrastructure Layer
+#### Infrastructure Layer
 This layer concerned with dealing with outside world, like dealing with database, containing configurations, DBContext and the implementation of the interfaces in Domain layer.
 
-### Presentation Layer (API)
+#### Presentation Layer (API)
 This layer contains the application endpoints and the configuration for web app and service collections like dependency injection, authentication, authorization, cookie config and so on.
 
 ## Features
