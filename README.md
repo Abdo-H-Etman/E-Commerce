@@ -5,6 +5,7 @@ This is an E-Commerce application built using C#. The project aims to provide a 
 
 ## Project Structure
 This project is built following 4-Layered Onion Archeticture
+    
     ### Domain Layer (Core)
     This layer contains the business models of the system along with the interfaces for repositories and unit of work.
   
@@ -16,6 +17,8 @@ This project is built following 4-Layered Onion Archeticture
   
     ### Presentation Layer (API)
     This layer contains the application endpoints and the configuration for web app and service collections like dependency injection, authentication, authorization, cookie config and so on.
+        This is an additional line with spaces.
+        Another example line.
 
 ## Features
 - User authentication and authorization
