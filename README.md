@@ -10,6 +10,9 @@ This is an E-Commerce application built using C#. The project aims to provide a 
 - Order management
 - Payment processing
 
+## Project Structure
+This project is built following 4-Layered Onion Archeticture
+
 ## Technologies Used
 - C#
 - ASP.NET Core
@@ -21,7 +24,3 @@ This is an E-Commerce application built using C#. The project aims to provide a 
 - .NET 8.0 SDK
 - SQL Server
 
-### Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Abdo-H-Etman/E-Commerce.git
