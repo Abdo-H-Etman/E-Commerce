@@ -27,12 +27,8 @@ This layer contains the application endpoints and the configuration for web app 
 
 ## Technologies Used
 - C#
-- ASP.NET Core
+- ASP.NET Core Web Api
 - Entity Framework Core
 - SQL Server
 
-## Getting Started
-### Prerequisites
-- .NET 8.0 SDK
-- SQL Server
 
