@@ -1,4 +1,5 @@
 using System;
+using Asp.Versioning;
 using Ecommerce.Application.Dtos.Create;
 using Ecommerce.Application.Dtos.List;
 using Ecommerce.Application.Interfaces;
@@ -10,8 +11,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.Api.Controllers;
 
-[Route("api/products")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/products")]
 [ApiController]
+[Authorize]
+// [ApiExplorerSettings(GroupName = "v1.0")]
 public class ProductController : ControllerBase
 {
     private readonly IServiceManager _serviceManager;

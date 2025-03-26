@@ -1,4 +1,3 @@
-using System;
 
 namespace ECommerce.Domain.Entities.Exceptions;
 

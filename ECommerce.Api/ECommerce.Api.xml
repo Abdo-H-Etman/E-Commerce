@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ECommerce.Api</name>
+    </assembly>
+    <members>
+        <member name="M:ECommerce.Api.Controllers.UsersController.GetAllUsers(Ecommerce.Domain.RequestFeatures.UserParameters)">
+            <summary>
+            Gets the list of all users
+            </summary>
+            <param name="userParameters"></param>
+            <returns>the users list</returns>
+        </member>
+    </members>
+</doc>

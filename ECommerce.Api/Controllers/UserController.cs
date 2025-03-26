@@ -18,14 +18,18 @@ namespace ECommerce.Api.Controllers
 {
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/users")]
-    [ApiController]
-    // [ResponseCache(CacheProfileName = "120SecondsDuration")]
+    [ApiController , Authorize]
     public class UsersController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;
 
         public UsersController(IServiceManager serviceManager) => _serviceManager = serviceManager;
 
+        /// <summary>
+        /// Gets the list of all users
+        /// </summary>
+        /// <param name="userParameters"></param>
+        /// <returns>the users list</returns>
         [HttpGet(Name = "GetUsers")]
         [HttpHead]
         [ServiceFilter(typeof(ValidateMediaTypeAttribute))]

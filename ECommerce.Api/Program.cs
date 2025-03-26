@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Asp.Versioning.ApiExplorer;
 using AspNetCoreRateLimit;
 using Ecommerce.Application.Interfaces;
@@ -20,11 +21,15 @@ builder.Services.AddControllers(config =>
     {
         Duration = 120
     });
-});
+}).AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.None;
+    });
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddFilters();
-builder.Services.AddSwaggerGen();
+builder.Services.ConfigureSwagger();
 builder.Services.ConfigureCors();
 builder.Services.ConfigureIISIntegration();
 builder.Services.ConfigureLoggerService();
@@ -39,10 +44,10 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
                 });
 builder.Services.ConfigureLinkService();                
 builder.Services.ConfigureVersioning();
-builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 builder.Services.AddRepositories();
 builder.Services.AddCustomMediaTypes();
-builder.Services.ConfigureOptions<ConfigureSwaggerGenOption>();
+// builder.Services.ConfigureOptions<ConfigureSwaggerGenOption>();
 builder.Services.ConfigureResponseCaching();
 builder.Services.ConfigureHttpCacheHeaders();
 builder.Services.AddMemoryCache();
@@ -51,14 +56,15 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddAuthentication();
 builder.Services.ConfigureIdentity();
-builder.Services.ConfigureJWT(builder.Configuration);
+// builder.Services.ConfigureJWT(builder.Configuration);
+builder.Services.ConfigureCookies();
+// builder.Services.AddJwtConfiguration(builder.Configuration);
 
 var app = builder.Build();
 
 var logger = app.Services.GetRequiredService<ILoggerManager>();
 app.ConfigureExceptionHandler(logger);
 
-Console.WriteLine(Guid.NewGuid());
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -66,13 +72,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(opt =>
     {
-        IReadOnlyList<ApiVersionDescription>? descriptions = app.DescribeApiVersions();
-        foreach(ApiVersionDescription description in descriptions)
-        {
-            string url = $"/swagger/{description.GroupName}/swagger.json";
-            string name = description.GroupName.ToUpperInvariant();
-            opt.SwaggerEndpoint(url, name);
-        }
+        opt.SwaggerEndpoint("/swagger/v1/swagger.json", "ECommerce API v1");
+        opt.SwaggerEndpoint("/swagger/v2/swagger.json", "ECommerce API v2");
+        // IReadOnlyList<ApiVersionDescription>? descriptions = app.DescribeApiVersions();
+        // foreach(ApiVersionDescription description in descriptions)
+        // {
+        //     string url = $"/swagger/{description.GroupName}/swagger.json";
+        //     string name = description.GroupName.ToUpperInvariant();
+        //     opt.SwaggerEndpoint(url, name);
+        // }
     });
 }
 

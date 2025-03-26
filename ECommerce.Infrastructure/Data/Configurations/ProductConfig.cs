@@ -24,9 +24,9 @@ public class ProductConfig : BaseConfig<Product>
                .IsRequired();
 
 
-       //  builder.HasOne(p => p.ProvidedBy)
-       //         .WithMany()
-       //         .HasForeignKey(p => p.UserId);
+        builder.HasOne(p => p.ProvidedBy)
+               .WithMany()
+               .HasForeignKey(p => p.UserId);
         builder.HasOne(p => p.Category)
                .WithMany(c => c.Products)
                .HasForeignKey(p => p.CategoryId);

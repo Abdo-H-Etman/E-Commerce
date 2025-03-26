@@ -6,9 +6,9 @@
 
 // namespace ECommerce.Infrastructure.Data.Configurations;
 
-// public class UserConfig : BaseConfig<User>
+// public class UserConfig : IEntityTypeConfiguration<User>
 // {
-//     public override void Configure(EntityTypeBuilder<User> builder)
+//     public void Configure(EntityTypeBuilder<User> builder)
 //     {
 //         builder.ToTable("Users");
 
@@ -24,12 +24,6 @@
 //                .IsRequired();
 //         builder.Property(u => u.Email)
 //                .IsRequired();
-//         builder.Property(u => u.Password)
-//                .IsRequired();
-//         builder.Property(u => u.Phone); 
-//         builder.Property(u => u.Role)
-//                .HasDefaultValue(UserRole.Buyer.ToString());
-                           
 
 //         builder.HasMany(u => u.Orders)
 //                .WithOne(o => o.User)

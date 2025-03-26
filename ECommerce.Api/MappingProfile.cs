@@ -23,7 +23,9 @@ public class MappingProfile : Profile
         //     .ForMember(dest => dest.Password, opt => opt.MapFrom(src => src.Password));
         CreateMap<UserForRegistrationDto, User>();
         CreateMap<UserForUpdateDto, User>(); 
-        CreateMap<Product, ProductDto>();
+        CreateMap<Product, ProductDto>()
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src =>
+                src.Category!= null ?src.Category.Name : string.Empty));
         CreateMap<ProductForCreateDto, Product>();   
     }
 }

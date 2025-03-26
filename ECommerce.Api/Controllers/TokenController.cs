@@ -1,4 +1,5 @@
 using System;
+using Asp.Versioning;
 using Ecommerce.Application.Dtos;
 using Ecommerce.Application.Interfaces;
 using Ecommerce.Application.Validations;
@@ -6,8 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.Api.Controllers;
 
-[Route("api/token")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/token")]
 [ApiController]
+// [ApiExplorerSettings(GroupName = "v1.0")]
 public class TokenController : ControllerBase
 {
     private readonly IServiceManager _serviceManager;

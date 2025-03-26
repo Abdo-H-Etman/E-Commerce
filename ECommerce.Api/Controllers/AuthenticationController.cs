@@ -1,4 +1,5 @@
 
+using Asp.Versioning;
 using Ecommerce.Application.Dtos;
 using Ecommerce.Application.Dtos.Create;
 using Ecommerce.Application.Dtos.List;
@@ -13,24 +14,18 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace ECommerce.Api.Controllers;
 
-[Route("api/authentication")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/Authentication")]
 [ApiController]
+// [ApiExplorerSettings(GroupName = "v1.0")]
 public class AuthenticationController : ControllerBase 
 {
     private readonly IServiceManager _serviceManager;
 
     public AuthenticationController(IServiceManager serviceManager) => _serviceManager = serviceManager;
 
-    [HttpGet("users")]
-    [Authorize(Roles = "Administrator")]
-    public async Task<IActionResult> GetAllUsers()
-    {
-        var response = await _serviceManager.AuthenticationService.GetAllUsers();
 
-        return StatusCode(200, response);
-    }
-
-    [HttpPost("register")]
+    [HttpPost("Register")]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
     public async Task<IActionResult> RegisterUser([FromBody] UserForRegistrationDto userForRegistration)
     {
@@ -39,18 +34,25 @@ public class AuthenticationController : ControllerBase
         return StatusCode(201, response);
     }
 
-    [HttpPost("login")]
+    [HttpPost("Login")]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
     public async Task<IActionResult> Login([FromBody] UserForAuthenticationDto userForAuthentication)
     {
-        var response = await _serviceManager.AuthenticationService.ValidateUser(userForAuthentication);
+        var response = await _serviceManager.AuthenticationService.Login(userForAuthentication);
+        return StatusCode(200, response);
 
-        if (!response)
-        {
-            return Unauthorized();
-        }
-
-        var tokenDto = await _serviceManager.AuthenticationService.CreateToken(populateExp: true);
-        return Ok(new OkResponse<TokenDto>(tokenDto, "Token Created Successfully"));
     }
+
+    [HttpPost("Logout")]
+    [Authorize]
+    public async Task<IActionResult> Logout()
+    {
+        var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        var response = await _serviceManager.AuthenticationService.Logout(token);
+        return StatusCode(200, response);
+    }
+
+    [HttpGet("AccessDenied")]
+    public IActionResult AccessDenied() =>
+        Forbid();
 }

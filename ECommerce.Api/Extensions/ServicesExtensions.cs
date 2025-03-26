@@ -1,4 +1,12 @@
 using System.Text;
+using System.Reflection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Asp.Versioning;
 using AspNetCoreRateLimit;
 using Ecommerce.Application.Dtos.List;
@@ -8,18 +16,15 @@ using Ecommerce.Application.Services.DataShaping;
 using Ecommerce.Application.Services.LoggerService;
 using Ecommerce.Application.Validations;
 using ECommerce.Api.Utility;
+using ECommerce.Domain.Entities.ConfigurationModels;
 using ECommerce.Domain.Interfaces;
 using ECommerce.Domain.Models;
 using ECommerce.Infrastructure.Data;
 using ECommerce.Infrastructure.Repositories;
 using Marvin.Cache.Headers;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-
-using Microsoft.AspNetCore.Mvc.Formatters;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+using System.Net;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace ECommerce.Api.Extensions;
 
@@ -159,15 +164,14 @@ public static class ServicesExtensions
 
     public static void ConfigureJWT(this IServiceCollection services, IConfiguration configuration)
     {
-        var jwtSettings = configuration.GetSection("JwtSettings");
+
+        var jwtConfiguration = new JwtConfiguration();
+        configuration.Bind(jwtConfiguration.Section, jwtConfiguration);
         var secretKey = Environment.GetEnvironmentVariable("SECRET");
 
-        services.AddAuthentication(opt =>
-        {
-            opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        })
-        .AddJwtBearer(options =>
+        services.AddAuthentication()
+        .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
+        .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
         {
             options.TokenValidationParameters = new TokenValidationParameters
             {
@@ -175,11 +179,62 @@ public static class ServicesExtensions
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = jwtSettings["validIssuer"],
-                ValidAudience = jwtSettings["validAudience"],
+                ValidIssuer = jwtConfiguration.ValidIssuer,
+                ValidAudience = jwtConfiguration.ValidAudience,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!))
             };
         });
+        
     }
 
+    public static void ConfigureCookies(this IServiceCollection services)
+    {
+        // services.AddAuthorization()
+        //         .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+        //         .AddCookie();
+        services.ConfigureApplicationCookie(options =>
+        {
+            options.LoginPath = "/api/v1/Authentication/Login";
+            options.LogoutPath = "/api/v1/Authentication/Logout";
+            options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+            options.SlidingExpiration = true;
+            options.AccessDeniedPath = "/api/v1/Authentication/AccessDenied";
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SameSite = SameSiteMode.None;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        });        
+    }
+    public static void AddJwtConfiguration(this IServiceCollection services, IConfiguration configuration)=>
+        services.Configure<JwtConfiguration>(configuration.GetSection("JwtSettings"));
+    
+    public static void ConfigureSwagger(this IServiceCollection services)
+    {
+        services.AddSwaggerGen(s =>
+        {
+            s.SwaggerDoc("v1", new OpenApiInfo { 
+                Title = "ECommerce API", 
+                Version = "v1", 
+                Description = "ECommerce API by SE Abdo Hatem",
+                TermsOfService = new Uri("https://example.com/terms"),
+                Contact = new OpenApiContact
+                {
+                    Name = "Abdo Hatem",
+                    Email = "abdoetman010@gmail.com",
+                    Url = new Uri("https://www.linkedin.com/in/abdelrahman-othman-430402316/")
+                },
+                License = new OpenApiLicense
+                {
+                    Name = "Use under LICX",
+                    Url = new Uri("https://example.com/license")
+                }});
+
+            s.SwaggerDoc("v2", new OpenApiInfo { Title = "ECommerce API", Version = "v2" });
+
+            var xmlFile = $"{typeof(Program).Assembly.GetName().Name}.xml";
+            var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+            s.IncludeXmlComments(xmlPath);
+
+            
+        });
+    }
 }

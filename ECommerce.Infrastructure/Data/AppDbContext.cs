@@ -1,3 +1,4 @@
+using ECommerce.Domain.Entities.Models;
 using ECommerce.Domain.Generics;
 using ECommerce.Domain.Models;
 using ECommerce.Infrastructure.Data.Configurations;

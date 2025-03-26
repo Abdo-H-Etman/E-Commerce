@@ -11,7 +11,6 @@ public class User : IdentityUser<Guid>
     public string? RefreshToken {get; set;}
     public DateTime RefreshTokenExpiryTime {get; set;}
     public DateTime CreatedAt {get; set;} = DateTime.UtcNow;
-    // public IEnumerable<string>? UserRoles {get; set;}
     public IEnumerable<Order>? Orders {get; set;}
     public IEnumerable<Review>? Reviews {get; set;}
 

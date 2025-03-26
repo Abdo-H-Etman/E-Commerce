@@ -4,17 +4,20 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using AutoMapper;
+using Azure.Core;
 using Ecommerce.Application.Dtos;
 using Ecommerce.Application.Dtos.Create;
 using Ecommerce.Application.Dtos.List;
 using Ecommerce.Application.Interfaces;
 using Ecommerce.Application.Responses;
+using ECommerce.Domain.Entities.ConfigurationModels;
 using ECommerce.Domain.Entities.Exceptions;
+using ECommerce.Domain.Interfaces;
 using ECommerce.Domain.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.CodeAnalysis.Operations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Ecommerce.Application.Services;
@@ -22,17 +25,23 @@ namespace Ecommerce.Application.Services;
 public class AuthenticationService : IAuthenticationService
 {
     private readonly UserManager<User> _userManager;
+    private readonly SignInManager<User> _signInManager;
     private readonly ILoggerManager _logger;
     private readonly IMapper _mapper;
-    private readonly IConfiguration _configuration;
+    private readonly IOptions<JwtConfiguration> _configuration;
+    private readonly JwtConfiguration _jwtConfiguration;
     private User? _user;
 
-    public AuthenticationService(UserManager<User> userManager, ILoggerManager logger, IMapper mapper, IConfiguration configuration)
+    public AuthenticationService(UserManager<User> userManager, ILoggerManager logger,
+                                IMapper mapper, IOptions<JwtConfiguration> configuration,
+                                SignInManager<User> signInManager)
     {
         _userManager = userManager;
+        _signInManager = signInManager;
         _logger = logger;
         _mapper = mapper;
         _configuration = configuration;
+        _jwtConfiguration = _configuration.Value;
     }
 
     public async Task<BaseResponse<UserDto>> RegisterUserAsync(UserForRegistrationDto userForRegistration)
@@ -55,18 +64,35 @@ public class AuthenticationService : IAuthenticationService
         return new OkResponse<UserDto>(userDto, "User Created Successfully");
     }
 
-    public async Task<BaseResponse<IEnumerable<UserDto>>> GetAllUsers()
+    public async Task<BaseResponse<TokenDto>> Login(UserForAuthenticationDto userForAuthentication)
     {
-        var users = await _userManager.Users.ToListAsync();
-        return new OkResponse<IEnumerable<UserDto>>(_mapper.Map<IEnumerable<UserDto>>(users), "Users Retrieved Successfully");
+        var result = await ValidateUser(userForAuthentication);
+        if(!result)
+        {
+            throw new BadRequestException("Authentication failed. Wrong username or password.");
+        }
+        var token = await CreateToken(populateExp: true);
+        return new OkResponse<TokenDto>(token, "Token Created Successfully");
+    }
+    
+    public async Task<BaseResponse<object>> Logout(string token)
+    {
+        if (_signInManager.IsSignedIn(_signInManager.Context.User))
+        {
+            await _signInManager.SignOutAsync();
+            _logger.LogInfo($"User {_signInManager.Context.User.Identity?.Name} logged out successfully.");
+            return new OkResponse<object>(new object(), "Logout successful.");
+        }
+        throw new BadRequestException("User is not logged in.");
     }
     public async Task<bool> ValidateUser(UserForAuthenticationDto userForAuthentication)
     {
-        _user = await _userManager.FindByNameAsync(userForAuthentication.UserName);
-        var result = _user != null && await _userManager.CheckPasswordAsync(_user, userForAuthentication.Password);
+        _user = await _userManager.FindByEmailAsync(userForAuthentication.Email);
+        var result = _user != null && await _signInManager.PasswordSignInAsync(_user, userForAuthentication.Password, false, false) == SignInResult.Success;
         if(!result)
         {
             _logger.LogWarn($"{nameof(ValidateUser)}Authentication failed. Wrong username or password.");
+            throw new BadRequestException("Authentication failed. Wrong email or password.");
         }
         return result;
     }
@@ -120,12 +146,11 @@ public class AuthenticationService : IAuthenticationService
 
     private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims)
     {
-        var jwtSettings = _configuration.GetSection("JwtSettings");
         var tokenOptions = new JwtSecurityToken(
-            issuer: jwtSettings["validIssuer"],
-            audience: jwtSettings["validAudience"],
+            issuer: _jwtConfiguration.ValidIssuer,
+            audience: _jwtConfiguration.ValidAudience,
             claims: claims,
-            expires: DateTime.Now.AddMinutes(Convert.ToDouble(jwtSettings["expires"])),
+            expires: DateTime.Now.AddMinutes(Convert.ToDouble(_jwtConfiguration.Expires)),
             signingCredentials: signingCredentials
         );
         return tokenOptions;
@@ -141,8 +166,6 @@ public class AuthenticationService : IAuthenticationService
 
     private ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
     {
-        var jwtSettings = _configuration.GetSection("JwtSettings");
-
         var tokenValidationParameters = new TokenValidationParameters
         {
             ValidateAudience = true,
@@ -150,9 +173,10 @@ public class AuthenticationService : IAuthenticationService
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SECRET")!)),
             ValidateLifetime = true,
-            ValidIssuer = jwtSettings["validIssuer"],
-            ValidAudience = jwtSettings["validAudience"]
+            ValidIssuer = _jwtConfiguration.ValidIssuer,
+            ValidAudience = _jwtConfiguration.ValidAudience
         };
+
         var tokenHandler = new JwtSecurityTokenHandler();
         var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var securityToken);
         var jwtSecurityToken = securityToken as JwtSecurityToken;
