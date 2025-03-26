@@ -23,6 +23,7 @@ public class ProductRepository : GenericRepository<Product, RequestParameters>
     public override async Task<IEnumerable<Product>> Filter(Expression<Func<Product, bool>> filter) =>
         await _dbSet.Include(p => p.ProvidedBy).Include(p => p.Reviews).Where(filter).ToListAsync();
 
-       
+    public override async Task<Product> GetById(Guid id) =>
+        await _dbSet.Include(p => p.ProvidedBy).Include(p => p.Reviews).Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == id);   
 
 }

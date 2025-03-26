@@ -11,4 +11,6 @@ public interface IProductService
 {
     Task<BaseResponse<ProductDto>> CreateProduct(ProductForCreateDto productForCreateDto, bool trackChanges);
     Task<BaseResponse<IEnumerable<ProductDto>>> GetAllProducts(RequestParameters productLinkParameters, bool trackChanges);
+    Task<BaseResponse<ProductDto>> GetProduct(Guid id, bool trackChanges);
+    Task<BaseResponse<bool>> DeleteProduct(Guid id, bool trackChanges);
 }

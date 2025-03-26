@@ -5,6 +5,7 @@ using Ecommerce.Application.Dtos.List;
 using Ecommerce.Application.Interfaces;
 using Ecommerce.Application.Responses;
 using Ecommerce.Domain.RequestFeatures;
+using ECommerce.Domain.Entities.Exceptions;
 using ECommerce.Domain.Interfaces;
 using ECommerce.Domain.Models;
 
@@ -34,5 +35,22 @@ public class ProductService : IProductService
         var products = await _repositoryManager.Product.GetAll(productLinkParameters);
         var productDtos = _mapper.Map<IEnumerable<ProductDto>>(products);
         return new OkResponse<IEnumerable<ProductDto>>(productDtos, "Products Retrieved Successfully");
+    }
+    public async Task<BaseResponse<ProductDto>> GetProduct(Guid id, bool trackChanges)
+    {
+        var product = await _repositoryManager.Product.GetById(id) ??
+                        throw new ProductNotFoundException(id);
+        
+        var productDto = _mapper.Map<ProductDto>(product);
+        return new OkResponse<ProductDto>(productDto, "Product Retrieved Successfully");
+    }
+    public async Task<BaseResponse<bool>> DeleteProduct(Guid id, bool trackChanges)
+    {
+        var product = await _repositoryManager.Product.GetById(id) ??
+                        throw new ProductNotFoundException(id);
+        
+        _repositoryManager.Product.Delete(product);
+        await _repositoryManager.Save();
+        return new OkResponse<bool>(true, "Product Deleted Successfully");
     }
 }
