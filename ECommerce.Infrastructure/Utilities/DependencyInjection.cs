@@ -15,7 +15,7 @@ public static class DependencyInjection
         services.AddScoped<IRepositoryManager,RepositoryManager>();
         services.AddScoped<IUserRepository,UserRepository>();
         services.AddScoped<IRepository<Order,RequestParameters>,OrderRepository>();
-        services.AddScoped<IRepository<OrderItem,RequestParameters>,OrderItemRepository>();
+        services.AddScoped<IOrderItemRepository,OrderItemRepository>();
         services.AddScoped<IRepository<Product,RequestParameters>,ProductRepository>();
         services.AddScoped<IPaymentRepository,PaymentRepository>();
         return services;

@@ -22,6 +22,10 @@ public class MappingProfile : Profile
         //     .ForMember(dest => dest.Reviews, opt => opt.Ignore())
         //     .ForMember(dest => dest.Password, opt => opt.MapFrom(src => src.Password));
         CreateMap<UserForRegistrationDto, User>();
+        CreateMap<OrderItemForCreateDto, OrderItem>();
+        CreateMap<OrderItem, OrderItemDto>()
+                .ForMember(dest => dest.Product, opt => opt.MapFrom(src => src.Product))
+                .ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => src.Product!.Price));
         CreateMap<UserForUpdateDto, User>(); 
         CreateMap<Product, ProductDto>()
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src =>

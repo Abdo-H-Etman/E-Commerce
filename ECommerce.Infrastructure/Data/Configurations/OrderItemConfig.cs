@@ -10,10 +10,6 @@ public class OrderItemConfig : BaseConfig<OrderItem>
     {
         builder.ToTable("OrderItems");
 
-        builder.Property(oi => oi.UnitPrice)
-               .HasColumnType("decimal(10,2)")
-               .IsRequired();
-
         builder.HasOne(oi => oi.Order)
                 .WithMany(o => o.OrderItems)
                 .HasForeignKey(oi => oi.OrderId)
