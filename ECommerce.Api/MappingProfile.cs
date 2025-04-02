@@ -16,13 +16,15 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.FullName, 
                     opt => opt.MapFrom(src => string.Join(" ", src.FirstName, src.LastName)))
             .ForMember(dest => dest.Roles, opt => opt.MapFrom<RolesResolver>());
-                
-        // CreateMap<UserForCreateDto, User>()s
-        //     .ForMember(dest => dest.Orders, opt => opt.Ignore())
-        //     .ForMember(dest => dest.Reviews, opt => opt.Ignore())
-        //     .ForMember(dest => dest.Password, opt => opt.MapFrom(src => src.Password));
         CreateMap<UserForRegistrationDto, User>();
         CreateMap<UserForUpdateDto, User>(); 
+
+        CreateMap<OrderItemForCreateDto, OrderItem>();
+        CreateMap<OrderItem, OrderItemDto>()
+                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product!.Name))
+                .ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => src.Product!.Price));
+        CreateMap<OrderItemForUpdateDto, OrderItem>();
+                
         CreateMap<Product, ProductDto>()
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src =>
                 src.Category!= null ?src.Category.Name : string.Empty));

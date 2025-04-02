@@ -44,12 +44,19 @@ public class ProductController : ControllerBase
         var product = await _serviceManager.ProductService.GetProduct(id, false);
         return StatusCode(200, product);
     }
+    [HttpGet("category/{categoryId}")]
+    [Authorize]
+    public async Task<IActionResult> GetProductsByCategory(Guid categoryId, [FromQuery] RequestParameters requestParameters)
+    {
+        var products = await _serviceManager.ProductService.GetProductsByCategory(categoryId, requestParameters, false);
+        return StatusCode(200, products);
+    }
 
     [HttpDelete("{id}")]
     [Authorize(Roles = "Seller, Administrator")]
     public async Task<IActionResult> DeleteProduct(Guid id)
     {
-        var response = await _serviceManager.ProductService.DeleteProduct(id, trackChanges: true);
-        return StatusCode(200, "Product deleted successfully");
+        await _serviceManager.ProductService.DeleteProduct(id, trackChanges: true);
+        return NoContent();
     }
 }

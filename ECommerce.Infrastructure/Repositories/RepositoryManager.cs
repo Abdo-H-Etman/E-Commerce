@@ -23,9 +23,9 @@ public class RepositoryManager : IRepositoryManager
 
     public IRepository<Order,RequestParameters> Order => _serviceProvider.GetRequiredService<IRepository<Order,RequestParameters>>();
 
-    public IRepository<Product,RequestParameters> Product => _serviceProvider.GetRequiredService<IRepository<Product,RequestParameters>>();
+    public IProductRepository Product => _serviceProvider.GetRequiredService<IProductRepository>();
 
-    public IRepository<OrderItem,RequestParameters> OrderItem => _serviceProvider.GetRequiredService<IRepository<OrderItem,RequestParameters>>();
+    public IOrderItemRepository OrderItem => _serviceProvider.GetRequiredService<IOrderItemRepository>();
 
     public IPaymentRepository Payment => _serviceProvider.GetRequiredService<IPaymentRepository>();
 
