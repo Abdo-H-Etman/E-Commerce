@@ -63,8 +63,8 @@ namespace ECommerce.Api.Controllers
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UserForUpdateDto user)
         {
-            var response = await _serviceManager.UserService.UpdateUser(id, user, trackChanges: false);
-            return StatusCode(200, response);
+            await _serviceManager.UserService.UpdateUser(id, user, trackChanges: false);
+            return NoContent();
         }
 
         [HttpDelete("{id}")]

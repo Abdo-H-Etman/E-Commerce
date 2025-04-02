@@ -53,4 +53,11 @@ public class ProductService : IProductService
         await _repositoryManager.Save();
         return new OkResponse<bool>(true, "Product Deleted Successfully");
     }
+
+    public async Task<BaseResponse<IEnumerable<ProductDto>>> GetProductsByCategory(Guid categoryId, RequestParameters productLinkParameters, bool trackChanges)
+    {
+        var products = await _repositoryManager.Product.GetProductsByCategory(categoryId, productLinkParameters);
+        var productDtos = _mapper.Map<IEnumerable<ProductDto>>(products);
+        return new OkResponse<IEnumerable<ProductDto>>(productDtos, "Products Retrieved Successfully");
+    }
 }

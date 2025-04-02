@@ -8,7 +8,7 @@ public interface IRepositoryManager : IDisposable
     IUserRepository User {get; }
     IRepository<Category,RequestParameters> Categorie {get; }
     IRepository<Order,RequestParameters> Order {get; }
-    IRepository<Product,RequestParameters> Product {get; }
+    IProductRepository Product {get; }
     IOrderItemRepository OrderItem {get; }
     IPaymentRepository Payment {get; }
     IRepository<Carrier,RequestParameters> Carrier {get; }

@@ -18,13 +18,7 @@ public class OrderItemRepository : GenericRepository<OrderItem, RequestParameter
                                 .Include(item => item.Order)
                                 .ToListAsync();
         return PagedList<OrderItem>.ToPagedList(items, requestParameters.PageNumber, requestParameters.PageSize);
-    }
-
-    public async Task<IEnumerable<OrderItem>> GetSpecificOrderItems(Guid orderId) =>
-        await _dbSet.Include(item => item.Product)
-                    // .Include(item => item.Order)
-                    .Where(item => item.OrderId == orderId)
-                    .ToListAsync();
+    } 
 
     public override async Task<IEnumerable<OrderItem>> Filter(Expression<Func<OrderItem, bool>> filter) =>
         await _dbSet.Include(item => item.Product)
@@ -32,9 +26,21 @@ public class OrderItemRepository : GenericRepository<OrderItem, RequestParameter
                     .Where(filter)
                     .ToListAsync();
 
-    public async Task<IEnumerable<OrderItem>> GetSpecificOrderItems(RequestParameters orderItemParameters, Guid orderId, bool trackChanges) =>
-        await _dbSet.Include(item => item.Product)
-                    .ThenInclude(product => product.Category)
+    public async Task<PagedList<OrderItem>> GetSpecificOrderItems(RequestParameters requestParameters ,Guid orderId)
+    {
+        var products = await _dbSet.Include(item => item.Product)
+                    .ThenInclude(product => product!.Category)
                     .Where(item => item.OrderId == orderId)
                     .ToListAsync();
+        return PagedList<OrderItem>.ToPagedList(products, requestParameters.PageNumber, requestParameters.PageSize);
+    }
+
+    public async Task<PagedList<OrderItem>> GetOrderItemsByProductId(RequestParameters requestParameters ,Guid productId)
+    {
+        var products = await _dbSet.Include(item => item.Product)
+                    .ThenInclude(product => product!.Category)
+                    .Where(item => item.ProductId == productId)
+                    .ToListAsync();  
+        return PagedList<OrderItem>.ToPagedList(products, requestParameters.PageNumber, requestParameters.PageSize);
+    }              
 }
