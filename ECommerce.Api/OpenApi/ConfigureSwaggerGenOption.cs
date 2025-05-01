@@ -19,14 +19,47 @@ public class ConfigureSwaggerGenOption : IConfigureNamedOptions<SwaggerGenOption
 
     public void Configure(SwaggerGenOptions options)
     {
-        foreach(var description in _provider.ApiVersionDescriptions)
+        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
         {
-            var OpenApiInfo = new OpenApiInfo
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "Enter 'Bearer' [space] and then your token in the text input below.\nExample: 'Bearer abc123'"
+        });
+
+        // Add security requirement
+        options.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
             {
-                Title = $"ECommerce API v{description.ApiVersion}",
-                Version = description.ApiVersion.ToString(),
-            };
-            options.SwaggerDoc(description.GroupName, OpenApiInfo); 
-        }
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                new List<string>() // Scopes (empty for JWT)
+            }
+        });
+
+        var addedGroupNames = new HashSet<string>(); // Track added group names to avoid duplicates
+        
+        // foreach(var description in _provider.ApiVersionDescriptions)
+        // {
+        //     if (!addedGroupNames.Add(description.GroupName))
+        //     {
+        //         // Skip duplicate group names
+        //         continue;
+        //     }
+        //     var OpenApiInfo = new OpenApiInfo
+        //     {
+        //         Title = $"ECommerce API v{description.ApiVersion}",
+        //         Version = description.ApiVersion.ToString(),
+        //     };
+        //     options.SwaggerDoc(description.GroupName, OpenApiInfo); 
+        // }
     }
 }
