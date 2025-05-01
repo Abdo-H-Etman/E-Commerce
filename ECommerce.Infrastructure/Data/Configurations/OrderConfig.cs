@@ -14,18 +14,22 @@ public class OrderConfig : BaseConfig<Order>
               builder.Property(o => o.OrderStatus)
                      .HasDefaultValue(OrderStatus.Pending.ToString());
               builder.Property(o => o.TotalAmount)
-                     .HasColumnType("decimal(10,2)")
-                     .IsRequired();
+                     .HasColumnType("decimal(10,2)");
+                             
 
               builder.HasOne(o => o.Payment)
-                     .WithOne(p => p.Order)
-                     .HasForeignKey<Payment>(p => p.OrderId);
+                             .WithOne(p => p.Order)
+                             .HasForeignKey<Payment>(p => p.OrderId);
               builder.HasOne(o => o.Shipping)
                      .WithOne()
                      .HasForeignKey<Shipping>(s => s.OrderId);
               builder.HasMany(o => o.OrderItems)
                      .WithOne(oi => oi.Order)
                      .HasForeignKey(oi => oi.OrderId);
+              builder.HasMany(o => o.OrderItems)
+                     .WithOne(oi => oi.Order)
+                     .HasForeignKey(oi => oi.OrderId)
+                     .OnDelete(DeleteBehavior.Cascade);       
 
               base.Configure(builder);
        }
