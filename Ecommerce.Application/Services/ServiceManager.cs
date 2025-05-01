@@ -17,6 +17,7 @@ public class ServiceManager : IServiceManager
     private readonly Lazy<IAuthenticationService> _authenticationService;
     private readonly Lazy<IProductService> _productService;
     private readonly Lazy<IOrderItemService> _orderItemService;
+    private readonly Lazy<IOrderService> _orderService;
     public ServiceManager(IRepositoryManager repositoryManager, IMapper mapper, IDataShaper<UserDto> dataShaper
         , IEntityLinks<UserDto> userLinks, UserManager<User> userManager,
         ILoggerManager logger, IOptions<JwtConfiguration> configuration, SignInManager<User> signInManager)
@@ -25,10 +26,12 @@ public class ServiceManager : IServiceManager
         _productService = new Lazy<IProductService>(() => new ProductService(repositoryManager, mapper));
         _userService = new Lazy<IUserService>(() => new UserServices(repositoryManager, mapper, dataShaper, userLinks));
         _orderItemService = new Lazy<IOrderItemService>(() => new OrderItemService(repositoryManager, mapper));
+        _orderService = new Lazy<IOrderService>(() => new OrderService(repositoryManager, mapper));
     }
     
     public IAuthenticationService AuthenticationService => _authenticationService.Value;
     public IProductService ProductService => _productService.Value;
     public IUserService UserService => _userService.Value;
     public IOrderItemService OrderItemService => _orderItemService.Value;
+    public IOrderService OrderService => _orderService.Value;
 }

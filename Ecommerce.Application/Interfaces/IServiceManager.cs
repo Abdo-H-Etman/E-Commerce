@@ -8,4 +8,5 @@ public interface IServiceManager
     IAuthenticationService AuthenticationService { get; }
     IProductService ProductService { get; }
     IOrderItemService OrderItemService { get; }
+    IOrderService OrderService { get; }
 }
