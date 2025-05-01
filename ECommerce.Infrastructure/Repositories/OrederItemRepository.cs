@@ -12,6 +12,14 @@ public class OrderItemRepository : GenericRepository<OrderItem, RequestParameter
 {
     public OrderItemRepository(AppDbContext context) : base(context) {}
 
+    public override async Task<OrderItem> Add(OrderItem orderItem)
+    {
+        await _dbSet.AddAsync(orderItem);
+        await _context.SaveChangesAsync();
+        return await _dbSet.Include(item => item.Product)
+                    .ThenInclude(item => item!.Category).FirstOrDefaultAsync(item => item.Id == orderItem.Id) 
+                    ?? throw new InvalidOperationException("OrderItem not found after adding.");                    
+    }
     public override async Task<PagedList<OrderItem>> GetAll(RequestParameters requestParameters) 
     {
         var items = await _dbSet.Include(item => item.Product)
