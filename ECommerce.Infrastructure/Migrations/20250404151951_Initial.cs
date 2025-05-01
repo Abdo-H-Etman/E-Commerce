@@ -196,11 +196,11 @@ namespace ECommerce.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CarrierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     OrderStatus = table.Column<string>(type: "nvarchar(max)", nullable: true, defaultValue: "Pending"),
                     TotalAmount = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
-                    DiscountPercent = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    carrierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    DiscountPercent = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -212,8 +212,8 @@ namespace ECommerce.Infrastructure.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Orders_Carriers_carrierId",
-                        column: x => x.carrierId,
+                        name: "FK_Orders_Carriers_CarrierId",
+                        column: x => x.CarrierId,
                         principalTable: "Carriers",
                         principalColumn: "Id");
                 });
@@ -410,9 +410,9 @@ namespace ECommerce.Infrastructure.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Orders_carrierId",
+                name: "IX_Orders_CarrierId",
                 table: "Orders",
-                column: "carrierId");
+                column: "CarrierId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_UserId",

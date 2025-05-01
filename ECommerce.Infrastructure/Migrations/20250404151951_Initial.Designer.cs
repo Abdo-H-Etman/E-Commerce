@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ECommerce.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250330142837_Initial")]
+    [Migration("20250404151951_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -79,6 +79,9 @@ namespace ECommerce.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("CarrierId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<decimal>("DiscountPercent")
                         .HasColumnType("decimal(18,2)");
 
@@ -96,14 +99,11 @@ namespace ECommerce.Infrastructure.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("carrierId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("CarrierId");
 
-                    b.HasIndex("carrierId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Orders", (string)null);
                 });
@@ -501,15 +501,15 @@ namespace ECommerce.Infrastructure.Migrations
 
             modelBuilder.Entity("ECommerce.Domain.Models.Order", b =>
                 {
+                    b.HasOne("ECommerce.Domain.Models.Carrier", "carrier")
+                        .WithMany()
+                        .HasForeignKey("CarrierId");
+
                     b.HasOne("ECommerce.Domain.Models.User", "User")
                         .WithMany("Orders")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("ECommerce.Domain.Models.Carrier", "carrier")
-                        .WithMany()
-                        .HasForeignKey("carrierId");
 
                     b.Navigation("User");
 
