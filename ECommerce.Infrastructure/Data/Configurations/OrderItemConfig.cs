@@ -13,7 +13,7 @@ public class OrderItemConfig : BaseConfig<OrderItem>
         builder.HasOne(oi => oi.Order)
                 .WithMany(o => o.OrderItems)
                 .HasForeignKey(oi => oi.OrderId)
-                .OnDelete(DeleteBehavior.NoAction);       
+                .OnDelete(DeleteBehavior.Cascade);       
 
         base.Configure(builder);
     }
