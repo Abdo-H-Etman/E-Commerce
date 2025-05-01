@@ -55,7 +55,7 @@ namespace ECommerce.Api.Controllers
         [HttpGet("Filter")]
         public async Task<IActionResult> FilterUsers([FromQuery] string filter)
         {
-            var users = await _serviceManager.UserService.FilterUsers(u => string.Join(" ", u.FirstName!.ToLower(), (u.LastName ?? string.Empty).ToLower()).Contains(filter.ToLower()), trackChanges: false);
+            var users = await _serviceManager.UserService.FilterUsers(u => string.Join(" ", new object?[] { u.FirstName!.ToLower(), (u.LastName ?? string.Empty).ToLower() }).Contains(filter.ToLower()), trackChanges: false);
             return StatusCode(200, users);
         }
 
