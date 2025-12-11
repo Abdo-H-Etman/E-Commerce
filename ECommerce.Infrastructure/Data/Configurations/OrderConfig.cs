@@ -15,6 +15,8 @@ public class OrderConfig : BaseConfig<Order>
                      .HasDefaultValue(OrderStatus.Pending.ToString());
               builder.Property(o => o.TotalAmount)
                      .HasColumnType("decimal(10,2)");
+              builder.Property(o => o.DiscountPercent)
+                     .HasColumnType("decimal(10,2)");
                              
 
               builder.HasOne(o => o.Payment)
@@ -22,14 +24,7 @@ public class OrderConfig : BaseConfig<Order>
                              .HasForeignKey<Payment>(p => p.OrderId);
               builder.HasOne(o => o.Shipping)
                      .WithOne()
-                     .HasForeignKey<Shipping>(s => s.OrderId);
-              builder.HasMany(o => o.OrderItems)
-                     .WithOne(oi => oi.Order)
-                     .HasForeignKey(oi => oi.OrderId);
-              builder.HasMany(o => o.OrderItems)
-                     .WithOne(oi => oi.Order)
-                     .HasForeignKey(oi => oi.OrderId)
-                     .OnDelete(DeleteBehavior.Cascade);       
+                     .HasForeignKey<Shipping>(s => s.OrderId);      
 
               base.Configure(builder);
        }

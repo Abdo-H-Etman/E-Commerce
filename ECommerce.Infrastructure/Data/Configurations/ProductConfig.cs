@@ -26,13 +26,15 @@ public class ProductConfig : BaseConfig<Product>
 
         builder.HasOne(p => p.ProvidedBy)
                .WithMany()
-               .HasForeignKey(p => p.UserId);
+               .HasForeignKey(p => p.UserId)
+               .OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(p => p.Category)
                .WithMany(c => c.Products)
                .HasForeignKey(p => p.CategoryId);
         builder.HasMany(p => p.OrderItems)
                .WithOne(o => o.Product)
-               .HasForeignKey(o => o.ProductId);
+               .HasForeignKey(o => o.ProductId)
+               .OnDelete(DeleteBehavior.Restrict);
         builder.HasMany(p => p.Reviews)
                .WithOne(r => r.Product)
                .HasForeignKey(r => r.ProductId);
