@@ -10,4 +10,12 @@ public sealed class OrderItem : IdModel
 
     public Order? Order {get; set;}
     public Product? Product {get; set;}
+    public decimal SumAmount()
+    {
+        if (Product != null)
+        {
+            return Product.Price * Quantity;
+        }
+        return 0;
+    }
 }

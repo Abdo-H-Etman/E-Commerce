@@ -4,7 +4,6 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using AutoMapper;
-using Azure.Core;
 using Ecommerce.Application.Dtos;
 using Ecommerce.Application.Dtos.Create;
 using Ecommerce.Application.Dtos.List;
@@ -12,11 +11,8 @@ using Ecommerce.Application.Interfaces;
 using Ecommerce.Application.Responses;
 using ECommerce.Domain.Entities.ConfigurationModels;
 using ECommerce.Domain.Entities.Exceptions;
-using ECommerce.Domain.Interfaces;
 using ECommerce.Domain.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -49,16 +45,21 @@ public class AuthenticationService : IAuthenticationService
         var user = _mapper.Map<User>(userForRegistration);
         var result = await _userManager.CreateAsync(user, userForRegistration.Password!);
 
-        if(result.Succeeded)
+        if (!result.Succeeded)
         {
-            foreach (var role in userForRegistration.Roles!)
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            _logger.LogError($"User registration failed: {errors}");
+            throw new BadRequestException($"User registration failed: {errors}");
+        }
+
+        foreach (var role in userForRegistration.Roles!)
+        {
+            if (!await _userManager.IsInRoleAsync(user, role))
             {
-                if (!await _userManager.IsInRoleAsync(user, role))
-                {
-                    await _userManager.AddToRoleAsync(user, role);
-                }
+                await _userManager.AddToRoleAsync(user, role);
             }
         }
+
         var userDto = _mapper.Map<UserDto>(user);
         // userDto.Roles = await _userManager.GetRolesAsync(user);
         return new OkResponse<UserDto>(userDto, "User Created Successfully");
@@ -125,7 +126,7 @@ public class AuthenticationService : IAuthenticationService
 
     private SigningCredentials GetSigningCredentials()
     {
-        var key = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SECRET")!);
+        var key = Encoding.UTF8.GetBytes(_jwtConfiguration.Secret!);
         var secret = new SymmetricSecurityKey(key);
         return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
     }
@@ -171,7 +172,7 @@ public class AuthenticationService : IAuthenticationService
             ValidateAudience = true,
             ValidateIssuer = true,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SECRET")!)),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfiguration.Secret!)),
             ValidateLifetime = true,
             ValidIssuer = _jwtConfiguration.ValidIssuer,
             ValidAudience = _jwtConfiguration.ValidAudience

@@ -47,7 +47,7 @@ builder.Services.ConfigureVersioning();
 builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 builder.Services.AddRepositories();
 builder.Services.AddCustomMediaTypes();
-// builder.Services.ConfigureOptions<ConfigureSwaggerGenOption>();
+builder.Services.ConfigureOptions<ConfigureSwaggerGenOption>();
 builder.Services.ConfigureResponseCaching();
 builder.Services.ConfigureHttpCacheHeaders();
 builder.Services.AddMemoryCache();
@@ -58,7 +58,7 @@ builder.Services.AddAuthentication();
 builder.Services.ConfigureIdentity();
 // builder.Services.ConfigureJWT(builder.Configuration);
 builder.Services.ConfigureCookies();
-// builder.Services.AddJwtConfiguration(builder.Configuration);
+builder.Services.AddJwtConfiguration(builder.Configuration);
 
 var app = builder.Build();
 
